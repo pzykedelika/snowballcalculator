@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+
 import { Button } from "@/components/ui/button";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
@@ -25,15 +25,16 @@ export default function CompoundCalculator() {
   const [rate, setRate] = useState(7);
   const [years, setYears] = useState(10);
   const [frequency, setFrequency] = useState("12");
-  const [adjustInflation, setAdjustInflation] = useState(false);
-  const [inflation, setInflation] = useState(2);
+  
+  
   const [contribType, setContribType] = useState("monthly");
   const [customPerYear, setCustomPerYear] = useState(12);
 
-  const { data, finalBalance, totalContrib, interestEarned, realFinal } = useMemo(() => {
+  const { data, finalBalance, totalContrib, interestEarned } = useMemo(() => {
     const months = clampNumber(Math.round(years * 12), 1, 1200);
     const f = parseInt(frequency);
     const mRate = monthlyRateFromNominal(rate, f);
+    const baseYear = new Date().getFullYear();
 
     // Normalize contribution to a monthly equivalent
     const baseAmount = monthly;
@@ -53,19 +54,16 @@ export default function CompoundCalculator() {
       contrib += contribPerMonth;
       const year = Math.ceil(i / 12);
       const month = ((i - 1) % 12) + 1;
-      const label = month === 1 ? `Yr ${year}` : ``;
+      const label = month === 1 ? String(baseYear + year - 1) : "";
       series.push({ idx: i, label, balance, contribution: contrib });
     }
 
     const finalBalance = balance;
     const totalContrib = contrib;
     const interestEarned = finalBalance - totalContrib;
-    const realFinal = adjustInflation
-      ? finalBalance / Math.pow(1 + inflation / 100, years)
-      : finalBalance;
 
-    return { data: series, finalBalance, totalContrib, interestEarned, realFinal };
-  }, [initial, monthly, rate, years, frequency, adjustInflation, inflation, contribType, customPerYear]);
+    return { data: series, finalBalance, totalContrib, interestEarned };
+  }, [initial, monthly, rate, years, frequency, contribType, customPerYear]);
 
   return (
     <section aria-label="Compound interest calculator" className="space-y-8">
@@ -155,25 +153,10 @@ export default function CompoundCalculator() {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="infl-switch">Adjust for inflation</Label>
-              <Switch id="infl-switch" checked={adjustInflation} onCheckedChange={setAdjustInflation} />
-            </div>
-            <Input
-              aria-label="Inflation rate"
-              type="number"
-              min={0}
-              step={0.1}
-              value={inflation}
-              onChange={(e) => setInflation(clampNumber(parseFloat(e.target.value || "0"), 0, 20))}
-              disabled={!adjustInflation}
-            />
-          </div>
           <div className="md:col-span-2 flex gap-3">
             <Button variant="hero" className="px-6">Recalculate</Button>
             <Button variant="outline" onClick={() => {
-              setInitial(10000); setMonthly(500); setRate(7); setYears(10); setFrequency("12"); setAdjustInflation(false); setInflation(2);
+              setInitial(10000); setMonthly(500); setRate(7); setYears(10); setFrequency("12");
             }}>Reset</Button>
           </div>
         </CardContent>
@@ -219,7 +202,7 @@ export default function CompoundCalculator() {
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="label" tickLine={false} axisLine={false} interval={11} />
-                <YAxis tickLine={false} axisLine={false} tickFormatter={(v) => currency.format(v).replace("$", "")} width={70} />
+                <YAxis tickLine={false} axisLine={false} tickFormatter={(v) => currency.format(v).replace("$", "")} width={100} />
                 <Tooltip
                   contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))" }}
                   labelStyle={{ color: "hsl(var(--muted-foreground))" }}
@@ -230,9 +213,6 @@ export default function CompoundCalculator() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          {adjustInflation && (
-            <p className="mt-4 text-sm text-muted-foreground">Inflation-adjusted final balance: {currency.format(realFinal)}</p>
-          )}
         </CardContent>
       </Card>
 
@@ -249,14 +229,6 @@ export default function CompoundCalculator() {
                 acceptedAnswer: {
                   "@type": "Answer",
                   text: "We model monthly growth using an effective monthly rate derived from your nominal annual rate and compounding frequency, adding contributions each month."
-                }
-              },
-              {
-                "@type": "Question",
-                name: "Can I adjust for inflation?",
-                acceptedAnswer: {
-                  "@type": "Answer",
-                  text: "Yes. Toggle inflation and set the annual inflation rate to view real purchasing power of your projection."
                 }
               }
             ]
