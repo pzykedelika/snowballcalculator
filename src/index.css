@@ -48,8 +48,8 @@ All colors MUST be HSL.
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* Design enhancements */
-    --brand-1: 256 90% 60%;
-    --brand-2: 292 84% 61%;
+    --brand-1: 215 100% 56%;
+    --brand-2: 225 90% 45%;
     --gradient-primary: linear-gradient(135deg, hsl(var(--brand-1)), hsl(var(--brand-2)));
     --shadow-elevated: 0 10px 30px -10px hsl(var(--brand-1) / 0.25);
     --shadow-glow: 0 0 0 1px hsl(var(--brand-1) / 0.35), 0 10px 30px -10px hsl(var(--brand-2) / 0.35);

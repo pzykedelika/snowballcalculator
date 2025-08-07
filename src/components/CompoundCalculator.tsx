@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-const currency = new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" });
+const currency = new Intl.NumberFormat('en-AU', { style: "currency", currency: "AUD" });
 
 function monthlyRateFromNominal(annualPercent: number, frequencyPerYear: number) {
   const r = annualPercent / 100;
@@ -27,18 +27,30 @@ export default function CompoundCalculator() {
   const [frequency, setFrequency] = useState("12");
   const [adjustInflation, setAdjustInflation] = useState(false);
   const [inflation, setInflation] = useState(2);
+  const [contribType, setContribType] = useState("monthly");
+  const [customPerYear, setCustomPerYear] = useState(12);
 
   const { data, finalBalance, totalContrib, interestEarned, realFinal } = useMemo(() => {
     const months = clampNumber(Math.round(years * 12), 1, 1200);
     const f = parseInt(frequency);
     const mRate = monthlyRateFromNominal(rate, f);
+
+    // Normalize contribution to a monthly equivalent
+    const baseAmount = monthly;
+    const contribPerMonth =
+      contribType === "weekly"
+        ? baseAmount * (52 / 12)
+        : contribType === "custom"
+          ? baseAmount * (customPerYear / 12)
+          : baseAmount;
+
     let balance = initial;
     let contrib = initial;
     const series: { idx: number; label: string; balance: number; contribution: number }[] = [];
 
     for (let i = 1; i <= months; i++) {
-      balance = balance * (1 + mRate) + monthly;
-      contrib += monthly;
+      balance = balance * (1 + mRate) + contribPerMonth;
+      contrib += contribPerMonth;
       const year = Math.ceil(i / 12);
       const month = ((i - 1) % 12) + 1;
       const label = month === 1 ? `Yr ${year}` : ``;
@@ -53,7 +65,7 @@ export default function CompoundCalculator() {
       : finalBalance;
 
     return { data: series, finalBalance, totalContrib, interestEarned, realFinal };
-  }, [initial, monthly, rate, years, frequency, adjustInflation, inflation]);
+  }, [initial, monthly, rate, years, frequency, adjustInflation, inflation, contribType, customPerYear]);
 
   return (
     <section aria-label="Compound interest calculator" className="space-y-8">
@@ -73,7 +85,7 @@ export default function CompoundCalculator() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="monthly">Monthly contribution</Label>
+            <Label htmlFor="monthly">Contribution amount</Label>
             <Input
               id="monthly"
               type="number"
@@ -82,6 +94,31 @@ export default function CompoundCalculator() {
               onChange={(e) => setMonthly(clampNumber(parseFloat(e.target.value || "0"), 0, 1_000_000_000))}
             />
           </div>
+          <div className="space-y-2">
+            <Label>Contribution frequency</Label>
+            <Select value={contribType} onValueChange={setContribType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select contribution frequency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="custom">Custom</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {contribType === "custom" && (
+            <div className="space-y-2">
+              <Label htmlFor="perYear">Contributions per year</Label>
+              <Input
+                id="perYear"
+                type="number"
+                min={1}
+                value={customPerYear}
+                onChange={(e) => setCustomPerYear(clampNumber(parseFloat(e.target.value || "1"), 1, 365))}
+              />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="rate">Annual interest rate (%)</Label>
             <Input
