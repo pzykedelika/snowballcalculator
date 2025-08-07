@@ -39,20 +39,21 @@ All colors MUST be HSL.
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Design enhancements */
+    --brand-1: 256 90% 60%;
+    --brand-2: 292 84% 61%;
+    --gradient-primary: linear-gradient(135deg, hsl(var(--brand-1)), hsl(var(--brand-2)));
+    --shadow-elevated: 0 10px 30px -10px hsl(var(--brand-1) / 0.25);
+    --shadow-glow: 0 0 0 1px hsl(var(--brand-1) / 0.35), 0 10px 30px -10px hsl(var(--brand-2) / 0.35);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
@@ -91,6 +92,10 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Dark enhancements */
+    --shadow-elevated: 0 10px 30px -10px hsl(var(--brand-1) / 0.35);
+    --shadow-glow: 0 0 0 1px hsl(var(--brand-1) / 0.4), 0 10px 30px -10px hsl(var(--brand-2) / 0.45);
   }
 }
 
@@ -102,4 +107,35 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Utilities & components using design tokens */
+@layer utilities {
+  .gradient-hero {
+    background-image: var(--gradient-primary);
+    position: relative;
+    isolation: isolate;
+  }
+  .gradient-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, hsl(var(--background) / 0), hsl(var(--background)) 70%);
+    z-index: -1;
+  }
+  .glass-card {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-elevated);
+  }
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  .btn-hero {
+    background-image: var(--gradient-primary);
+    color: hsl(var(--primary-foreground));
+    transition: var(--transition-smooth);
+  }
+  .btn-hero:hover { filter: brightness(1.05); }
+  .btn-hero:active { transform: translateY(1px) scale(0.995); }
 }

@@ -1,13 +1,18 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import CompoundCalculator from "@/components/CompoundCalculator";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <main>
+      <header className="py-12 md:py-16 gradient-hero">
+        <div className="container text-center space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold">Compound Interest Calculator</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">Show clients clear, visual projections of their savings growth with contributions, compounding, and inflation adjustments.</p>
+        </div>
+      </header>
+      <section className="container -mt-8 md:-mt-12 space-y-8 relative z-10">
+        <CompoundCalculator />
+      </section>
+    </main>
   );
 };
 
