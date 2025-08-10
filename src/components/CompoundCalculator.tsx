@@ -30,6 +30,11 @@ export default function CompoundCalculator() {
   const [contribType, setContribType] = useState("monthly");
   const [customPerYear, setCustomPerYear] = useState(12);
 
+  const [initialInput, setInitialInput] = useState("10000");
+  const [monthlyInput, setMonthlyInput] = useState("500");
+  const [rateInput, setRateInput] = useState("7");
+  const [customPerYearInput, setCustomPerYearInput] = useState("12");
+
   const { data, finalBalance, totalContrib, interestEarned } = useMemo(() => {
     const months = clampNumber(Math.round(years * 12), 1, 1200);
     const f = parseInt(frequency);
@@ -81,8 +86,21 @@ export default function CompoundCalculator() {
               type="number"
               min={0}
               className="mt-2"
-              value={initial}
-              onChange={(e) => setInitial(Math.max(0, parseFloat(e.target.value || "0")))}
+              value={initialInput}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "" || /^\d{0,12}(?:\.?\d*)?$/.test(v)) {
+                  setInitialInput(v);
+                  const num = parseFloat(v);
+                  if (!isNaN(num)) setInitial(Math.max(0, num));
+                }
+              }}
+              onBlur={() => {
+                const num = Math.max(0, parseFloat(initialInput || ""));
+                const finalVal = isNaN(num) ? 0 : num;
+                setInitial(finalVal);
+                setInitialInput(String(finalVal));
+              }}
             />
           </div>
           <div className="space-y-2">
@@ -92,8 +110,21 @@ export default function CompoundCalculator() {
               type="number"
               min={0}
               className="mt-2"
-              value={monthly}
-              onChange={(e) => setMonthly(Math.max(0, parseFloat(e.target.value || "0")))}
+              value={monthlyInput}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "" || /^\d{0,12}(?:\.?\d*)?$/.test(v)) {
+                  setMonthlyInput(v);
+                  const num = parseFloat(v);
+                  if (!isNaN(num)) setMonthly(Math.max(0, num));
+                }
+              }}
+              onBlur={() => {
+                const num = Math.max(0, parseFloat(monthlyInput || ""));
+                const finalVal = isNaN(num) ? 0 : num;
+                setMonthly(finalVal);
+                setMonthlyInput(String(finalVal));
+              }}
             />
           </div>
           <div className="space-y-2">
@@ -118,8 +149,21 @@ export default function CompoundCalculator() {
                 type="number"
                 min={1}
                 className="mt-2"
-                value={customPerYear}
-                onChange={(e) => setCustomPerYear(Math.max(1, parseFloat(e.target.value || "1")))}
+                value={customPerYearInput}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "" || /^\d{0,3}$/.test(v)) {
+                    setCustomPerYearInput(v);
+                    const num = parseFloat(v);
+                    if (!isNaN(num)) setCustomPerYear(Math.max(1, Math.floor(num)));
+                  }
+                }}
+                onBlur={() => {
+                  const num = Math.max(1, Math.floor(parseFloat(customPerYearInput || "")) || 0);
+                  const finalVal = isNaN(num) ? 12 : num;
+                  setCustomPerYear(finalVal);
+                  setCustomPerYearInput(String(finalVal));
+                }}
               />
             </div>
           )}
@@ -131,8 +175,21 @@ export default function CompoundCalculator() {
               min={0}
               step={0.1}
               className="mt-2"
-              value={rate}
-              onChange={(e) => setRate(Math.max(0, parseFloat(e.target.value || "0")))}
+              value={rateInput}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "" || /^\d{0,3}(?:\.?\d*)?$/.test(v)) {
+                  setRateInput(v);
+                  const num = parseFloat(v);
+                  if (!isNaN(num)) setRate(Math.max(0, num));
+                }
+              }}
+              onBlur={() => {
+                const num = Math.max(0, parseFloat(rateInput || ""));
+                const finalVal = isNaN(num) ? 0 : num;
+                setRate(finalVal);
+                setRateInput(String(finalVal));
+              }}
             />
           </div>
           <div className="space-y-2">
@@ -190,7 +247,13 @@ export default function CompoundCalculator() {
               Recalculate
             </Button>
             <Button variant="outline" onClick={() => {
-              setInitial(10000); setMonthly(500); setRate(7); setYears(10); setYearsInput("10"); setFrequency("12");
+              setInitial(10000); setInitialInput("10000");
+              setMonthly(500); setMonthlyInput("500");
+              setRate(7); setRateInput("7");
+              setYears(10); setYearsInput("10");
+              setFrequency("12");
+              setContribType("monthly");
+              setCustomPerYear(12); setCustomPerYearInput("12");
             }}>Reset</Button>
           </div>
         </CardContent>
