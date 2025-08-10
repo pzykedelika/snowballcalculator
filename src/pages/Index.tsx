@@ -14,6 +14,7 @@ const Index = () => {
           <div className="text-center space-y-4">
             <h1 className="text-4xl md:text-5xl font-bold">Snowball Compound Interest Calculator</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">This is what your money can become.</p>
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto">A = P(1 + r/n)^{nt}</p>
           </div>
         </div>
       </header>
