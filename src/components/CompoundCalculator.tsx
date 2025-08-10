@@ -93,7 +93,7 @@ export default function CompoundCalculator() {
               min={0}
               className="mt-2"
               value={monthly}
-              onChange={(e) => setMonthly(clampNumber(parseFloat(e.target.value || "0"), 0, 1_000_000_000))}
+              onChange={(e) => setMonthly(Math.max(0, parseFloat(e.target.value || "0")))}
             />
           </div>
           <div className="space-y-2">
@@ -119,7 +119,7 @@ export default function CompoundCalculator() {
                 min={1}
                 className="mt-2"
                 value={customPerYear}
-                onChange={(e) => setCustomPerYear(clampNumber(parseFloat(e.target.value || "1"), 1, 365))}
+                onChange={(e) => setCustomPerYear(Math.max(1, parseFloat(e.target.value || "1")))}
               />
             </div>
           )}
@@ -132,7 +132,7 @@ export default function CompoundCalculator() {
               step={0.1}
               className="mt-2"
               value={rate}
-              onChange={(e) => setRate(clampNumber(parseFloat(e.target.value || "0"), 0, 100))}
+              onChange={(e) => setRate(Math.max(0, parseFloat(e.target.value || "0")))}
             />
           </div>
           <div className="space-y-2">
