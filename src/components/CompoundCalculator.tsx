@@ -82,7 +82,7 @@ export default function CompoundCalculator() {
               min={0}
               className="mt-2"
               value={initial}
-              onChange={(e) => setInitial(clampNumber(parseFloat(e.target.value || "0"), 0, 1_000_000_000))}
+              onChange={(e) => setInitial(Math.max(0, parseFloat(e.target.value || "0")))}
             />
           </div>
           <div className="space-y-2">
