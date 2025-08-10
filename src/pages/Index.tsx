@@ -6,7 +6,7 @@ const Index = () => {
       <header className="py-8 md:py-10">
         <div className="container">
           <div className="flex flex-col md:flex-row items-center md:items-center gap-6">
-            <a href="/" className="flex items-center gap-3 self-start">
+            <a href="/" className="flex items-center gap-3 self-start focus:outline-none focus-visible:outline-none">
               <img src="/lovable-uploads/1f6463bf-2fce-4417-87f5-aef3f47b0fbd.png" alt="Company logo" className="h-9 w-9 rounded-xl shadow-glow" loading="lazy" />
               <span className="sr-only">Home</span>
             </a>
