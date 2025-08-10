@@ -1,8 +1,73 @@
+:root{
+  --bg-top:#0a1f45;        /* deep blue */
+  --bg-bottom:#05080f;     /* near-black */
+  --text:#e6f0ff;
+  --muted:#9fb0c6;
+  --grid:rgba(150,170,200,.08);
+  --glow:#40ff93;          /* neon green */
+  --glow-soft: rgba(64,255,147,.25);
+}
+
+html, body {
+  background:
+    radial-gradient(1200px 600px at 50% -200px, var(--bg-top), transparent 60%),
+    linear-gradient(var(--bg-top), var(--bg-bottom));
+  color: var(--text);
+}
+
+.gradient-hero{
+  position: relative;
+  background:
+    radial-gradient(1200px 600px at 50% -200px, #0c3b88 0%, transparent 60%),
+    linear-gradient(180deg, rgba(12,38,84,.45), rgba(5,8,15,1) 50%, rgba(5,8,15,1));
+}
+
+/* Subtle perspective grid overlay */
+.gradient-hero::before{
+  content:"";
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 48px 48px, 48px 48px;
+  transform: perspective(800px) rotateX(55deg) translateY(-12%);
+  transform-origin: top center;
+  pointer-events:none;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,.45), rgba(0,0,0,0.8));
+}
+
+/* “Glass” card look */
+.card-glass{
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.35),
+    0 0 0 1px rgba(255,255,255,.03) inset;
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+}
+
+/* Neon heading glow */
+.heading-glow{
+  text-shadow:
+    0 0 12px var(--glow-soft),
+    0 0 28px rgba(64,255,147,.15);
+}
+
+/* Accent glow utility (for dots, buttons, logo) */
+.shadow-glow{
+  box-shadow: 0 0 0 1px rgba(64,255,147,.25), 0 0 28px var(--glow-soft);
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
   text-align: center;
+  background: #060606;
+  color: #e6f0ff;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
 }
 
 .logo {

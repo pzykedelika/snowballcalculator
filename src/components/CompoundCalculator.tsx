@@ -24,8 +24,8 @@ export default function CompoundCalculator() {
   const [monthly, setMonthly] = useState(500);
   const [rate, setRate] = useState(7);
   const [years, setYears] = useState(10);
+  const [yearsInput, setYearsInput] = useState("10");
   const [frequency, setFrequency] = useState("12");
-  
   
   const [contribType, setContribType] = useState("monthly");
   const [customPerYear, setCustomPerYear] = useState(12);
@@ -41,9 +41,11 @@ export default function CompoundCalculator() {
     const contribPerMonth =
       contribType === "weekly"
         ? baseAmount * (52 / 12)
+        : contribType === "fortnightly"
+        ? baseAmount * (26 / 12)
         : contribType === "custom"
-          ? baseAmount * (customPerYear / 12)
-          : baseAmount;
+        ? baseAmount * (customPerYear / 12)
+        : baseAmount;
 
     let balance = initial;
     let contrib = initial;
@@ -66,40 +68,43 @@ export default function CompoundCalculator() {
   }, [initial, monthly, rate, years, frequency, contribType, customPerYear]);
 
   return (
-    <section aria-label="Compound interest calculator" className="space-y-8">
+    <section aria-label="Compound interest calculator" className="space-y-8 mt-6">
       <Card className="glass-card">
         <CardHeader>
           <CardTitle className="text-2xl">Inputs</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-6 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="initial">Initial amount</Label>
+            <Label htmlFor="initial">Initial Contribution</Label>
             <Input
               id="initial"
               type="number"
               min={0}
+              className="mt-2"
               value={initial}
               onChange={(e) => setInitial(clampNumber(parseFloat(e.target.value || "0"), 0, 1_000_000_000))}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="monthly">Contribution amount</Label>
+            <Label htmlFor="monthly">Contribution Amount</Label>
             <Input
               id="monthly"
               type="number"
               min={0}
+              className="mt-2"
               value={monthly}
               onChange={(e) => setMonthly(clampNumber(parseFloat(e.target.value || "0"), 0, 1_000_000_000))}
             />
           </div>
           <div className="space-y-2">
-            <Label>Contribution frequency</Label>
+            <Label>Contribution Frequency</Label>
             <Select value={contribType} onValueChange={setContribType}>
               <SelectTrigger>
                 <SelectValue placeholder="Select contribution frequency" />
               </SelectTrigger>
-              <SelectContent>
+            <SelectContent>
                 <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="fortnightly">Fortnightly</SelectItem>
                 <SelectItem value="monthly">Monthly</SelectItem>
                 <SelectItem value="custom">Custom</SelectItem>
               </SelectContent>
@@ -112,18 +117,20 @@ export default function CompoundCalculator() {
                 id="perYear"
                 type="number"
                 min={1}
+                className="mt-2"
                 value={customPerYear}
                 onChange={(e) => setCustomPerYear(clampNumber(parseFloat(e.target.value || "1"), 1, 365))}
               />
             </div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="rate">Annual interest rate (%)</Label>
+            <Label htmlFor="rate">Annual Interest Rate (%)</Label>
             <Input
               id="rate"
               type="number"
               min={0}
               step={0.1}
+              className="mt-2"
               value={rate}
               onChange={(e) => setRate(clampNumber(parseFloat(e.target.value || "0"), 0, 100))}
             />
@@ -134,12 +141,35 @@ export default function CompoundCalculator() {
               id="years"
               type="number"
               min={1}
-              value={years}
-              onChange={(e) => setYears(clampNumber(parseFloat(e.target.value || "1"), 1, 100))}
+              max={100}
+              step={0.1}
+              className="mt-2"
+              value={yearsInput}
+              onChange={(e) => {
+                const v = e.target.value;
+                // Allow empty, partial decimals, up to 3 digits before decimal
+                if (v === "" || /^\d{0,3}(?:\.?\d*)?$/.test(v)) {
+                  setYearsInput(v);
+                  const num = parseFloat(v);
+                  if (!isNaN(num)) {
+                    setYears(clampNumber(num, 1, 100));
+                  }
+                }
+              }}
+              onBlur={() => {
+                const num = clampNumber(parseFloat(yearsInput || ""), 1, 100);
+                if (isNaN(num)) {
+                  setYears(1);
+                  setYearsInput("1");
+                } else {
+                  setYears(num);
+                  setYearsInput(String(num));
+                }
+              }}
             />
           </div>
           <div className="space-y-2">
-            <Label>Compounding frequency</Label>
+            <Label>Compounding Frequency</Label>
             <Select value={frequency} onValueChange={setFrequency}>
               <SelectTrigger>
                 <SelectValue placeholder="Select frequency" />
@@ -154,9 +184,13 @@ export default function CompoundCalculator() {
             </Select>
           </div>
           <div className="md:col-span-2 flex gap-3">
-            <Button variant="hero" className="px-6">Recalculate</Button>
+            <Button
+              className="px-6 bg-blue-700/40 backdrop-blur-md border border-blue-600/60 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-800/50 transition-all duration-300"
+            >
+              Recalculate
+            </Button>
             <Button variant="outline" onClick={() => {
-              setInitial(10000); setMonthly(500); setRate(7); setYears(10); setFrequency("12");
+              setInitial(10000); setMonthly(500); setRate(7); setYears(10); setYearsInput("10"); setFrequency("12");
             }}>Reset</Button>
           </div>
         </CardContent>
@@ -165,19 +199,19 @@ export default function CompoundCalculator() {
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="text-base">Final balance</CardTitle>
+            <CardTitle className="text-base">Final Balance!</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold">{currency.format(finalBalance)}</CardContent>
         </Card>
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="text-base">Total contributions</CardTitle>
+            <CardTitle className="text-base">Total Contribution</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold">{currency.format(totalContrib)}</CardContent>
         </Card>
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="text-base">Interest earned</CardTitle>
+            <CardTitle className="text-base">Interest Earned</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-semibold">{currency.format(interestEarned)}</CardContent>
         </Card>
@@ -201,8 +235,22 @@ export default function CompoundCalculator() {
                     <stop offset="95%" stopColor={`hsl(var(--muted-foreground))`} stopOpacity={0.05} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="label" tickLine={false} axisLine={false} interval={11} />
-                <YAxis tickLine={false} axisLine={false} tickFormatter={(v) => currency.format(v).replace("$", "")} width={100} />
+                <XAxis
+                  dataKey="label"
+                  tickLine={false}
+                  axisLine={false}
+                  interval={11}
+                  tick={{ fontSize: 12, fill: "#9fb0c6" }}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fill: "#9fb0c6" }}
+                  tickFormatter={(v) =>
+                    currency.format(v).replace("$", "").replace(/\.00$/, "")
+                  }
+                  width={100}
+                />
                 <Tooltip
                   contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))" }}
                   labelStyle={{ color: "hsl(var(--muted-foreground))" }}
